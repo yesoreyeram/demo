@@ -5,5 +5,49 @@
 </head>
 <body>
 	<h1>Solar System</h1>
+	<script type="text/javascript" src="http://underscorejs.org/underscore-min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+	<script type="text/javascript">
+	d3.csv("data.csv",function(data){
+
+
+		var sun = _.filter(data,function(d){ return d.object ==="sun"})[0];
+		
+		var width = window.innerWidth * 0.99;
+			height = 300;
+
+		var container = d3.select("body")
+			.append("svg")
+			.attr("id","solarsystem")
+			.attr("width",width)
+			.attr("height",height)
+			.style("background-color","#000000");
+
+
+		var radiusScale = d3.scale.linear()
+				.range([0, height ])
+				.domain([0,sun.radius]);
+
+		var distanceScale = d3.scale.linear()
+				.range([0, width - 100 - radiusScale(sun.radius)])
+				.domain([0,d3.max(data,function(d){ return +(d.distance)})]);
+
+
+		container.selectAll("circle.planet")
+			.data(data)
+			.enter()
+			.append("circle")
+			.attr("class",function(d){ return "planet " +d.object;})
+			.attr("fill",function(d){ return "#"+d.color; })
+			.attr("r",function(d,i){ return radiusScale(d.radius);})
+			.attr("cx",function(d,i){
+				if(d.object ==="sun") 
+					return 0; 
+				else
+			 		return radiusScale(sun.radius)+ distanceScale(d.distance);	
+			})
+			.attr("cy",height/2)
+	})
+	</script>
 </body>
 </html>
