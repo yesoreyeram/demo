@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Nobel prizes</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<style type="text/css">
+	body {padding-top: 70px;}
+	</style>
+</head>
+<body>
+	<nav class="navbar navbar-default navbar-fixed-top">
+	  <div class="container">
+	    <div class="navbar-header">
+	    	<a class="navbar-brand" href="#">Nobel Prizes</a>
+	    	</div>
+	    </div>
+	</nav>
+	<div id="main">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-3">
+					<span id="date_from"></span> To <span id="date_to"></span>
+				</div>
+				<div class="col-md-3">
+					<span id="NumberOfNobelPrizes"></span> Nobel Prizes
+				</div>
+				<div class="col-md-3">
+					<span id="NumberOfNobelLaureates"></span> Nobel Laureates
+				</div>	
+				<div class="col-md-3">
+					<span id="NumberOfCategories"></span> Categories 
+				</div>	
+			</div>
+			<div class="row">
+				<div class="col-md-6" id="vis_categories">
+					<h3>Categories</h3>
+					<svg></svg>
+				</div>	
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript" charset="utf-8" src="http://underscorejs.org/underscore-min.js"></script>
+	<script type="text/javascript" charset="utf-8" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+	<script type="text/javascript">
+
+	var prizes = [];
+	var laureates = [];
+
+	d3.json("http://api.nobelprize.org/v1/prize:json",function(data){
+		prizes = data.prizes;
+		d3.json("http://api.nobelprize.org/v1/laureate:json",function(data1){
+			laureates = data1.laureates;
+			renderMainContent(prizes,laureates);
+		});
+	});
+	var renderMainContent = function(_prizes,_laureates)
+	{
+		// Data Selection
+
+		var dataRange = { 
+			min  : _.min(_prizes,function(d){ return d.year}).year,
+			max :  _.max(_prizes,function(d){ return d.year}).year
+		};
+		var _category = d3.nest().key(function(d) { return d.category; }).rollup(function(a){return a;}).entries(_prizes);
+
+		// Scales
+
+		//Primary Content
+
+		document.getElementById("date_from").innerHTML 	= dataRange.min;
+		document.getElementById("date_to").innerHTML 	= dataRange.max ;
+		document.getElementById("NumberOfNobelPrizes").innerHTML = _prizes.length;
+		document.getElementById("NumberOfNobelLaureates").innerHTML = _laureates.length;
+		document.getElementById("NumberOfCategories").innerHTML = _category.length;
+
+		// vis_categories
+
+		var vis_categories = d3.select("#vis_categories svg");
+		var w =	document.getElementById("vis_categories").offsetWidth;
+		var h = 200;
+		var barPadding = 1;
+
+		vis_categories.attr("width",w);
+		vis_categories.attr("height",h);
+
+		vis_categories.selectAll("rect.category")
+			.data(_category)
+			.enter()
+			.append("rect")
+			.attr("class",function(d){return d.key})
+			.attr("fill","red")
+			.attr("class","category")
+			.attr("x",65)
+			.attr("y",function(d,i){ return ( i * 30)+15})
+			.attr("width",function(da){return da.values.length})
+			.attr("height",14)
+
+		vis_categories.selectAll("text.category")
+			.data(_category)
+			.enter()
+			.append("text")
+			.attr("class","category")
+			.text(function(d){ return d.key})
+			.attr("height",30)
+			.attr("x",0)
+			.attr("y",function(d,i){ return (i+1) * 30 })
+			.attr("font-family", "sans-serif")
+			.attr("font-size", "12px")
+			.attr("fill", "#000");
+
+		vis_categories.selectAll("text.count")
+			.data(_category)
+			.enter()
+			.append("text")
+			.attr("class","count")
+			.text(function(d){ return d.values.length})
+			.attr("height",30)
+			.attr("x",function(d){ return d.values.length + 70 })
+			.attr("y",function(d,i){ return (i+1) * 30 })
+			.attr("font-family", "sans-serif")
+			.attr("font-size", "12px")
+			.attr("fill", "#000");
+
+	}
+	</script>
+</body>
+</html>
