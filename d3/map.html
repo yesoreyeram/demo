@@ -3,16 +3,25 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>D3.js Examples</title>
+        <title>World Map - D3.js Examples</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style type="text/css">
+        html 
+        {
+          overflow: -moz-scrollbars-vertical; 
+          overflow-y: scroll;
+        }
+        </style>
  </head>
     <body>
       <h4>Hello D3</h4>
+      <script src="http://underscorejs.org/underscore-min.js"></script>
       <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
       <script src="//d3js.org/topojson.v1.min.js"></script>
       <script>
-        console.log(d3);
+        // Data Source: http://naciscdn.org/naturalearth/50m/cultural/ne_50m_admin_0_countries.zip
+        // Shape File to json: http://techslides.com/demos/mapping/shapefile-geojson-converter.html
         d3.json("data/map/ne_50m_admin_0_countries.json", function(error, world) {
             if (error) return console.error(error);
             console.log(world);
