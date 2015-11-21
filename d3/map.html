@@ -15,7 +15,7 @@
         </style>
  </head>
     <body>
-      <script src="http://underscorejs.org/underscore-min.js"></script>
+      <script type="text/javascript" src="http://underscorejs.org/underscore-min.js"></script>
       <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
       <script src="//d3js.org/topojson.v1.min.js"></script>
       <script>
@@ -26,11 +26,66 @@
             .attr("width", width)
             .attr("height", height);
 
+        var tooltip = d3.select("body")
+          .append("div")
+          .style("position", "absolute")
+          .style("z-index", "10")
+          .style("visibility", "hidden")
+          .text("a simple tooltip");
+
+        var worlddata,countries;
+
         // Data Source: http://naciscdn.org/naturalearth/50m/cultural/ne_50m_admin_0_countries.zip
-        // Shape File to json: http://techslides.com/demos/mapping/shapefile-geojson-converter.html
+        // Shape File to json: https://github.com/mbostock/topojson
+        // topjson commaon used: topojson -o ne_50m_admin_0_countries.json -p -- countries.shp
+
         d3.json("data/map/ne_50m_admin_0_countries.json", function(error, world) {
-            if (error) return console.error(error);
-            console.log(world);
+
+            worlddata = world;
+
+            countries = topojson.feature(worlddata, worlddata.objects.countries);
+
+            var projection = d3.geo.mercator()
+                              .scale(100)
+                              .translate([width / 2, height / 2]);
+
+            var path = d3.geo.path().projection(projection);
+
+            svg.append("path")
+              .datum(countries)
+              .attr("d", path);
+
+            var svgCountries = svg.selectAll(".country")
+              .data(countries.features)
+            .enter().append("path")
+              .attr("d", path)              
+              .on("mouseover", function(d){tooltip.text(d.properties.name); return tooltip.style("visibility", "visible");})
+              .on("mousemove", function(){return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");})
+              .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+            
+            svgCountries.attr("class", function(d) { return "country " + d.properties.iso_a3; });
+
+            svgCountries.attr("fill", function(d) {
+              switch(d.properties.continent)
+              {
+                case "Africa":
+                  return "red";
+                case "Asia":
+                  return "green";
+                case "North America":
+                  return "yellow";
+                case "South America":
+                  return "orange";
+                case "Europe":
+                  return "pink";
+                case "Oceania":
+                  return "cyan";
+                case "Antarctica":
+                  return "blue";
+                default:
+                  return "white";
+              }
+            });
         });
       </script>
     </body>
