@@ -1,30 +1,54 @@
 <!doctype html>
-<html class="no-js" lang="">
+<html class="no-js" lang="en">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>World Map - D3.js Examples</title>
         <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="css/bootstrap.min.css"/>
         <style type="text/css">
         html 
         {
           overflow: -moz-scrollbars-vertical; 
           overflow-y: scroll;
         }
+        body
+        {
+           padding-top: 70px;
+        }
         </style>
  </head>
     <body>
-      <script type="text/javascript" src="http://underscorejs.org/underscore-min.js"></script>
-      <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
-      <script src="//d3js.org/topojson.v1.min.js"></script>
+      <nav class="navbar navbar-default navbar-fixed-top">
+          <div class="container">
+            <div class="navbar-header">
+               <a class="navbar-brand" href="#">World Map</a>
+            </div>
+            <form class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" id="search">
+              </div>
+              <a class="btn btn-default">Search</a>
+            </form>
+          </div>
+      </nav>
+      <div id="main">        
+        <div class="container" id="area">
+        </div>
+      </div>
+      <script src="js/underscore-min.js" type="text/javascript" charset="utf-8"></script>
+      <script src="js/d3.v3.min.js" type="text/javascript" charset="utf-8"></script>
+      <script src="js/topojson.v1.min.js"type="text/javascript" charset="utf-8"></script>
       <script>
-        var width = 960,
-            height = 600;
+        var width = document.getElementById("area").offsetWidth,
+            height = window.innerHeight - 80;
 
-        var svg = d3.select("body").append("svg")
-            .attr("width", width)
-            .attr("height", height);
+        var worlddata,countries;
+
+        var svg = d3.select("#area").append("svg");
+            svg.attr("width", width);
+            svg.attr("height", height);
 
         var tooltip = d3.select("body")
           .append("div")
@@ -33,7 +57,6 @@
           .style("visibility", "hidden")
           .text("a simple tooltip");
 
-        var worlddata,countries;
 
         // Data Source: http://naciscdn.org/naturalearth/50m/cultural/ne_50m_admin_0_countries.zip
         // Shape File to json: https://github.com/mbostock/topojson
@@ -47,7 +70,7 @@
 
             var projection = d3.geo.mercator()
                               .scale(100)
-                              .translate([width / 2, height / 2]);
+                              .translate([width/2, height/2.5]);
 
             var path = d3.geo.path().projection(projection);
 
@@ -64,29 +87,24 @@
               .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
             
             svgCountries.attr("class", function(d) { return "country " + d.properties.iso_a3; });
-
-            svgCountries.attr("fill", function(d) {
-              switch(d.properties.continent)
-              {
-                case "Africa":
-                  return "red";
-                case "Asia":
-                  return "green";
-                case "North America":
-                  return "yellow";
-                case "South America":
-                  return "orange";
-                case "Europe":
-                  return "pink";
-                case "Oceania":
-                  return "cyan";
-                case "Antarctica":
-                  return "blue";
-                default:
-                  return "white";
-              }
-            });
+            svgCountries.attr("fill", "#eeeeee");
         });
+      
+        // Search Feature
+        var searchbox = document.getElementById("search");
+        searchbox.addEventListener("keyup", function(){
+          var svgCountries = svg.selectAll(".country");
+          svgCountries.attr("fill", function(d){
+            var query = searchbox.value.toUpperCase().replace(/ /g,'');
+            var countryName = d.properties.name.toUpperCase().replace(/ /g,'');
+            if(searchbox.value                  === "")     return "#eeeeee";
+            else if(countryName                 === query ) return "red";
+            else if(countryName.indexOf(query)  === 0)      return "green";
+            else if(countryName.indexOf(query)  >   0)      return "cyan";
+            else return "#eeeeee";
+          });
+        });
+
       </script>
     </body>
 </html>
