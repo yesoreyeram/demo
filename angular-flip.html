@@ -1,0 +1,43 @@
+<html data-ng-app>
+    <head>
+        <title>D3</title>
+        <style>
+            #name {
+                margin-bottom:20px;
+            }
+            .look {
+                display:inline-block;
+                font-size:200%;
+                font-weight:bolder;
+            }
+            .flip-x{
+                -moz-transform: scaleX(-1);
+                -o-transform: scaleX(-1);
+                -webkit-transform: scaleX(-1);
+                transform: scaleX(-1);
+                filter: FlipH;
+                -ms-filter: "FlipH";
+            }
+            .flip-y{
+                -moz-transform: scaleY(-1);
+                -o-transform: scaleY(-1);
+                -webkit-transform: scaleY(-1);
+                transform: scaleY(-1);
+                filter: FlipV;
+                -ms-filter: "FlipV";
+            }
+        </style>
+    </head>
+    <body>
+        <h4>Angular Flip</h4>
+        <input type="text" id="name" ng-model="name"><br/><hr/>
+        <span ng-bind="name" class="look"></span><br/>
+        <span ng-repeat="char in name.split('') track by $index" class="look flip-x">{{char}}</span><br/>
+        <span ng-repeat="char in name.split('').reverse() track by $index" class="look flip-x">{{char}}</span><br/>
+        <span ng-repeat="char in name.split('') track by $index" class="look flip-y">{{char}}</span><br/>
+        <span ng-repeat="char in name.split('').reverse() track by $index" class="look flip-y">{{char}}</span><br/>
+        <span ng-repeat="char in name.split('') track by $index" class="look flip-y flip-x">{{char}}</span><br/>
+        <span ng-repeat="char in name.split('').reverse() track by $index" class="look flip-y flip-x">{{char}}</span><br/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.min.js"></script>
+    </body>
+</html>
